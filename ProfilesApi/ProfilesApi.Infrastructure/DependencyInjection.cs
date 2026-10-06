@@ -15,7 +15,7 @@ public static class DependencyInjection
     {
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-        
+
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IAdministratorRepository, AdministratorRepository>();
         services.AddScoped<IOfficeRepository, OfficeRepository>();
@@ -24,9 +24,9 @@ public static class DependencyInjection
         services.AddScoped<IPhotoRepository, PhotoRepository>();
         services.AddScoped<ISpecializationRepository, SpecializationRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        
+
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
-        
+
         return services;
     }
 }

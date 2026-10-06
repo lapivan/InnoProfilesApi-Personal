@@ -42,10 +42,10 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Bas
     }
 
     public async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
-        int pageNumber, 
-        int pageSize, 
+        int pageNumber,
+        int pageSize,
         Expression<Func<T, bool>>? filter = null,
-        CancellationToken cancellationToken = default, 
+        CancellationToken cancellationToken = default,
         params Expression<Func<T, object>>[]? includesProperties)
     {
         IQueryable<T> query = Entities.AsQueryable();
@@ -53,7 +53,7 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Bas
         {
             query = query.Where(filter);
         }
-        
+
         var totalCount = await query.CountAsync(cancellationToken);
 
         if (includesProperties != null)
@@ -63,13 +63,13 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Bas
                 query = query.Include(includeProperty);
             }
         }
-        
+
         var items = await query.
             OrderBy(o => o.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
-        
+
         return (items, totalCount);
     }
 

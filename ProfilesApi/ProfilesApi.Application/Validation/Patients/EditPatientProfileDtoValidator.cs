@@ -16,7 +16,7 @@ public sealed class EditPatientProfileDtoValidator : AbstractValidator<EditPatie
 
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage("Invalid patient ID.");
-        
+
         RuleFor(x => x.PhotoId)
             .NotEmpty().WithMessage("Invalid photo ID format.")
             .When(x => x.PhotoId.HasValue);

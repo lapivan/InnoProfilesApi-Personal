@@ -9,7 +9,7 @@ public sealed class Office : BaseEntity
     public string PhoneNumber { get; set; }
     public Guid? PhotoId { get; set; }
     public Photo? Photo { get; set; }
-    
+
     public Office(string address, string phoneNumber)
     {
         Address = address;

@@ -1,0 +1,88 @@
+name: ProfilesApi CI/CD
+
+on:
+  push:
+    branches: [ "main", "feature/setup-ci-cd" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  NUGET_PROJECT_PATH: 'ProfilesApi/ProfilesApi.Application/ProfilesApi.Application.csproj'
+
+jobs:
+  lint:
+    name: Code Linter
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Verify code formatting
+        run: dotnet format ProfilesApi/ProfilesApi.sln --verify-no-changes
+
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-22.04
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true
+          cache-dependency-path: 'ProfilesApi/**/*.csproj'
+      - name: Restore dependencies
+        run: dotnet restore ProfilesApi/ProfilesApi.sln
+      - name: Build Solution
+        run: dotnet build ProfilesApi/ProfilesApi.sln --no-restore -c Release
+      
+      - name: Run Unit Tests
+        run: dotnet test ProfilesApi/ProfilesApi.UnitTests/ProfilesApi.UnitTests.csproj --no-build -c Release --verbosity normal
+      
+      - name: Run Integration Tests
+        run: dotnet test ProfilesApi/ProfilesApi.IntegrationTests/ProfilesApi.IntegrationTests.csproj --no-build -c Release --verbosity normal
+
+  publish-nuget:
+    name: Publish NuGet
+    runs-on: ubuntu-22.04
+    needs: build-and-test
+    permissions:
+      id-token: write 
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Pack NuGet Package
+        run: dotnet pack ${{ env.NUGET_PROJECT_PATH }} -c Release -o ./out
+      - name: NuGet Login
+        id: nuget_login
+        uses: NuGet/login@v1
+        with:
+          user: lapivan
+      - name: Push to NuGet
+        run: dotnet nuget push ./out/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} --skip-duplicate
+
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-22.04
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ProfilesApi
+          push: true
+          tags: lapivan/profiles-api:latest, lapivan/profiles-api:${{ github.sha }}

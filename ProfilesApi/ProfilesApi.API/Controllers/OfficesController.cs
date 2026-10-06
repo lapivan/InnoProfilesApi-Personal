@@ -15,12 +15,12 @@ namespace ProfilesApi.API.Controllers;
 public sealed class OfficesController : ControllerBase
 {
     private readonly IOfficeService _officeService;
-    
+
     public OfficesController(IOfficeService officeService)
     {
         _officeService = officeService;
     }
-    
+
     [HttpPost]
     [Authorize(Policy = AuthPolicies.RequireAdmin)]
     [SwaggerOperation(
@@ -54,7 +54,7 @@ public sealed class OfficesController : ControllerBase
         await _officeService.DeleteOfficeAsync(id, ct);
         return NoContent();
     }
-    
+
     [HttpPut]
     [Authorize(Policy = AuthPolicies.RequireAdmin)]
     [SwaggerOperation(
@@ -105,7 +105,7 @@ public sealed class OfficesController : ControllerBase
         var offices = await _officeService.GetOfficeListAsync(filteredOfficeListDto, ct);
         return Ok(offices);
     }
-    
+
     [HttpPost("search/paged")]
     [AllowAnonymous]
     [SwaggerOperation(

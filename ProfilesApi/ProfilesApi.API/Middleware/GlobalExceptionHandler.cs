@@ -14,7 +14,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             ConflictException => (StatusCodes.Status409Conflict, "Resource Conflict"),
             _ => (StatusCodes.Status500InternalServerError, "Internal Server Error")
         };
-        
+
         var problemDetails = new ProblemDetails
         {
             Status = statusCode,

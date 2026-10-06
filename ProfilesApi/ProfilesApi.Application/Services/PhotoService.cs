@@ -14,9 +14,9 @@ public sealed class PhotoService : IPhotoService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IFileStorageService _fileStorageService;
     private readonly ILogger<PhotoService> _logger;
-    
-    public PhotoService(IMapper mapper, 
-        IUnitOfWork unitOfWork, 
+
+    public PhotoService(IMapper mapper,
+        IUnitOfWork unitOfWork,
         IFileStorageService fileStorageService,
         ILogger<PhotoService> logger)
     {
@@ -29,14 +29,14 @@ public sealed class PhotoService : IPhotoService
     public async Task<PhotoDto> UploadPhotoAsync(Stream fileStream, string fileName, string contentType, CancellationToken ct = default)
     {
         _logger.LogInformation("Uploading new photo with FileName: {FileName}.", fileName);
-        
+
         var photoUrl = await _fileStorageService.UploadPhotoAsync(fileStream, fileName, ct);
-        
+
         var photo = new Photo(photoUrl);
 
         _unitOfWork.Photos.Add(photo);
         await _unitOfWork.CompleteAsync(ct);
-        
+
         _logger.LogInformation("Successfully uploaded photo with ID: {PhotoId}.", photo.Id);
         return _mapper.Map<PhotoDto>(photo);
     }
@@ -62,10 +62,10 @@ public sealed class PhotoService : IPhotoService
             }
 
             _unitOfWork.Photos.Delete(photo);
-            
+
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Successfully deleted photo with ID: {PhotoId}", photoId);
         }
         catch
@@ -74,7 +74,7 @@ public sealed class PhotoService : IPhotoService
             throw;
         }
     }
-    
+
     public async Task<(Stream Stream, string ContentType)> GetPhotoAsync(Guid photoId, CancellationToken ct = default)
     {
         await _unitOfWork.BeginTransactionAsync(IsolationLevel.Serializable, ct);
@@ -90,7 +90,7 @@ public sealed class PhotoService : IPhotoService
             }
 
             var fileName = Path.GetFileName(photo.Url);
-            
+
             if (string.IsNullOrWhiteSpace(fileName))
             {
                 _logger.LogWarning("Failed to retrieve photo. Invalid or empty filename in URL for photo ID '{PhotoId}'.", photoId);
@@ -103,9 +103,9 @@ public sealed class PhotoService : IPhotoService
                 _logger.LogWarning("Failed to retrieve photo stream. Physical file for photo ID '{PhotoId}' was not found on storage.", photoId);
                 throw new NotFoundException($"Physical file for photo ID '{photoId}' was not found on storage.");
             }
-            
+
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Photo stream for ID: {PhotoId} successfully retrieved.", photoId);
             return fileResult.Value;
         }

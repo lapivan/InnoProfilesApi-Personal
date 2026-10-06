@@ -17,16 +17,16 @@ public static class DependencyInjection
 
         services.AddKeyedScoped<IRegistrationPublisher, StaffCreatedPublisher>("ApiContext");
         services.AddKeyedScoped<IRegistrationPublisher, NullRegistrationPublisher>("ConsumerContext");
-        
+
         services.AddScoped<IAdministratorService, AdministratorService>();
         services.AddScoped<IDoctorService, DoctorService>();
         services.AddScoped<IOfficeService, OfficeService>();
         services.AddScoped<IPatientService, PatientService>();
         services.AddScoped<IPhotoService, PhotoService>();
         services.AddScoped<ISpecializationService, SpecializationService>();
-        
+
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        
+
         return services;
     }
 }

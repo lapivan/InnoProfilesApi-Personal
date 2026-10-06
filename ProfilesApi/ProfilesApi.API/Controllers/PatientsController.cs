@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProfilesApi.API.Constants;
 using ProfilesApi.Application.Dto.Patients;
@@ -6,7 +7,6 @@ using ProfilesApi.Application.Dto.Shared;
 using ProfilesApi.Application.Interfaces;
 using ProfilesApi.Application.Publishers;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Security.Claims;
 
 namespace ProfilesApi.API.Controllers;
 
@@ -17,12 +17,12 @@ namespace ProfilesApi.API.Controllers;
 public sealed class PatientsController : ControllerBase
 {
     private readonly IPatientService _patientService;
-    
+
     public PatientsController(IPatientService patientService)
     {
         _patientService = patientService;
     }
-    
+
     [HttpPost]
     [Authorize(Policy = AuthPolicies.RequireAdmin)]
     [SwaggerOperation(
@@ -67,7 +67,7 @@ public sealed class PatientsController : ControllerBase
         await _patientService.DeletePatientAsync(id, ct);
         return NoContent();
     }
-    
+
     [HttpPut]
     [Authorize(Policy = AuthPolicies.RequirePatientOrAdmin)]
     [SwaggerOperation(
@@ -102,7 +102,7 @@ public sealed class PatientsController : ControllerBase
         var patient = await _patientService.GetPatientAsync(patientId, ct);
         return Ok(patient);
     }
-    
+
     [HttpGet("accounts/{accountId:guid}")]
     [Authorize(Policy = AuthPolicies.RequireAllRoles)]
     [SwaggerOperation(
@@ -135,7 +135,7 @@ public sealed class PatientsController : ControllerBase
         var patients = await _patientService.GetPatientsAsync(filteredPatientListDto, ct);
         return Ok(patients);
     }
-    
+
     [HttpPost("search/paged")]
     [Authorize(Policy = AuthPolicies.RequireStaff)]
     [SwaggerOperation(

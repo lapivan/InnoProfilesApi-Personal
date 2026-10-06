@@ -28,16 +28,16 @@ public sealed class CreateAdministratorDtoValidator : AbstractValidator<CreateAd
 
         RuleFor(x => x.GapInMonths)
             .GreaterThanOrEqualTo(0).WithMessage("Gap in months cannot be negative.");
-        
+
         RuleFor(x => x.CareerStartDate)
             .GreaterThan(x => x.Birthday)
             .WithMessage("Career start date must be after the birthday.");
-        
+
         RuleFor(x => x.GapInMonths)
             .Must((dto, gap) =>
             {
                 var today = DateTime.UtcNow;
-                var totalMonths = ((today.Year - dto.CareerStartDate.Year) * 12) 
+                var totalMonths = ((today.Year - dto.CareerStartDate.Year) * 12)
                     + today.Month - dto.CareerStartDate.Month;
 
                 return gap <= totalMonths;

@@ -13,7 +13,7 @@ public sealed class SearchPagedAdministratorDtoValidator : AbstractValidator<Sea
             .When(x => x.OfficeId.HasValue);
 
         RuleFor(x => x.SearchTerm).SearchTermRules();
-        
+
         RuleFor(x => x.PageNumber)
             .GreaterThanOrEqualTo(1)
             .WithMessage("PageNumber must be greater than or equal to 1.");

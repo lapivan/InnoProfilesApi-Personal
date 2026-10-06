@@ -9,9 +9,9 @@ public sealed class PatientConfiguration : IEntityTypeConfiguration<Patient>
     public void Configure(EntityTypeBuilder<Patient> builder)
     {
         builder.HasQueryFilter(a => a.IsActive);
-        
+
         builder.HasKey(p => p.Id);
-        
+
         builder.HasOne(p => p.Account)
             .WithOne()
             .HasForeignKey<Patient>(p => p.AccountId)

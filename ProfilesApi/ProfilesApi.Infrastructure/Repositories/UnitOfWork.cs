@@ -18,12 +18,12 @@ public sealed class UnitOfWork : IUnitOfWork
     private readonly Lazy<ISpecializationRepository> _specializationsRepository;
     private readonly AppDbContext _context;
     private bool _disposed;
-    private IDbContextTransaction? _currentTransaction; 
+    private IDbContextTransaction? _currentTransaction;
 
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
-        
+
         _accountsRepository = new Lazy<IAccountRepository>(() => new AccountRepository(_context));
         _administratorsRepository = new Lazy<IAdministratorRepository>(() => new AdministratorRepository(_context));
         _doctorsRepository = new Lazy<IDoctorRepository>(() => new DoctorRepository(_context));
@@ -32,15 +32,15 @@ public sealed class UnitOfWork : IUnitOfWork
         _photosRepository = new Lazy<IPhotoRepository>(() => new PhotoRepository(_context));
         _specializationsRepository = new Lazy<ISpecializationRepository>(() => new SpecializationRepository(_context));
     }
-    
+
     public IAccountRepository Accounts => _accountsRepository.Value;
     public IAdministratorRepository Administrators => _administratorsRepository.Value;
     public IDoctorRepository Doctors => _doctorsRepository.Value;
-    public IOfficeRepository Offices =>  _officesRepository.Value;
+    public IOfficeRepository Offices => _officesRepository.Value;
     public IPatientRepository Patients => _patientsRepository.Value;
     public IPhotoRepository Photos => _photosRepository.Value;
     public ISpecializationRepository Specializations => _specializationsRepository.Value;
-    
+
     public async Task<int> CompleteAsync(CancellationToken ct = default)
     {
         return await _context.SaveChangesAsync(ct);
@@ -101,7 +101,7 @@ public sealed class UnitOfWork : IUnitOfWork
         }
         GC.SuppressFinalize(this);
     }
-    
+
     public async ValueTask DisposeAsync()
     {
         if (!_disposed)

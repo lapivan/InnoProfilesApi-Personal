@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using ProfilesApi.Application.Interfaces;
 
@@ -28,15 +28,15 @@ public sealed class LocalFileStorageService : IFileStorageService
         {
             _logger.LogInformation("Initialized physical file storage at path: {StoragePath}", _currentDirectory);
         }
-        
+
         _fileProvider = new PhysicalFileProvider(_currentDirectory);
     }
-    
+
     public async Task<string> UploadPhotoAsync(Stream fileStream, string fileName, CancellationToken ct = default)
     {
         _logger.LogInformation("Uploading physical file for OriginalName: {OriginalFileName}", fileName);
         var extension = Path.GetExtension(fileName);
-        
+
         var uniqueFileName = $"{Guid.NewGuid()}{extension}";
         var fullPath = Path.Combine(_currentDirectory, uniqueFileName);
 
@@ -79,7 +79,7 @@ public sealed class LocalFileStorageService : IFileStorageService
         }
 
         Stream stream = fileInfo.CreateReadStream();
-        
+
         new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType);
 
         var resolvedContentType = contentType ?? "application/octet-stream";

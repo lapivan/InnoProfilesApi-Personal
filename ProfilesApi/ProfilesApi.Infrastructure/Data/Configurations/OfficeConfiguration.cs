@@ -12,7 +12,7 @@ public sealed class OfficeConfiguration : IEntityTypeConfiguration<Office>
 
         builder.Property(o => o.Address)
             .HasMaxLength(256);
-        
+
         builder.Property(o => o.PhoneNumber)
             .HasMaxLength(20);
 
@@ -21,7 +21,7 @@ public sealed class OfficeConfiguration : IEntityTypeConfiguration<Office>
             .HasForeignKey<Office>(o => o.PhotoId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         builder.HasIndex(o => o.PhoneNumber).IsUnique();
     }
 }

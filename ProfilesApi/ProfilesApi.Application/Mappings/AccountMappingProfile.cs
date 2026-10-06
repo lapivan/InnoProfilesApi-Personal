@@ -17,7 +17,7 @@ public sealed class AccountMappingProfile : Profile
 
         CreateMap<CreateAdministratorDto, Account>()
             .ForMember(
-                dest => dest.Role, 
+                dest => dest.Role,
                 opt => opt.MapFrom(src => Roles.Administrator)
             );
 
@@ -27,22 +27,22 @@ public sealed class AccountMappingProfile : Profile
                 opt => opt.MapFrom(src => Roles.Administrator)
             )
             .ForMember(dest => dest.Id, opt => opt.Ignore());
-        
+
         CreateMap<Account, DoctorDto>();
-        
+
         CreateMap<CreateDoctorDto, Account>()
             .ForMember(
-                dest => dest.Role, 
+                dest => dest.Role,
                 opt => opt.MapFrom(src => Roles.Doctor)
             );
-        
+
         CreateMap<EditDoctorProfileDto, Account>()
             .ForMember(
-                dest => dest.Role, 
+                dest => dest.Role,
                 opt => opt.MapFrom(src => Roles.Doctor)
             )
             .ForMember(dest => dest.Id, opt => opt.Ignore());
-        
+
         CreateMap<Account, PatientDto>();
         CreateMap<EditPatientProfileDto, Account>()
             .ForMember(dest => dest.Id, opt => opt.Ignore());

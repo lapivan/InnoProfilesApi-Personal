@@ -14,9 +14,9 @@ public sealed class AccountRepository : GenericRepository<Account>, IAccountRepo
     public async Task<IEnumerable<Account>> SearchByTerm(string name, CancellationToken cancellationToken = default)
     {
         IQueryable<Account> query = Entities.AsQueryable();
-        query = query.Where(a => a.Firstname.Contains(name) || 
-                                 a.Lastname.Contains(name) || 
-                                 (a.Firstname + " " + a.Lastname).Contains(name) || 
+        query = query.Where(a => a.Firstname.Contains(name) ||
+                                 a.Lastname.Contains(name) ||
+                                 (a.Firstname + " " + a.Lastname).Contains(name) ||
                                  (a.Lastname + " " + a.Firstname).Contains(name));
         return await query.ToListAsync(cancellationToken);
     }
@@ -45,9 +45,9 @@ public sealed class AccountRepository : GenericRepository<Account>, IAccountRepo
     public async Task<IEnumerable<Account>> GetByName(string name, CancellationToken cancellationToken = default)
     {
         IQueryable<Account> query = Entities.AsQueryable();
-        query = query.Where(a => a.Firstname == (name) || 
-                                 a.Lastname == (name) || 
-                                 (a.Firstname + " " + a.Lastname) == (name) || 
+        query = query.Where(a => a.Firstname == (name) ||
+                                 a.Lastname == (name) ||
+                                 (a.Firstname + " " + a.Lastname) == (name) ||
                                  (a.Lastname + " " + a.Firstname) == (name));
         return await query.ToListAsync(cancellationToken);
     }

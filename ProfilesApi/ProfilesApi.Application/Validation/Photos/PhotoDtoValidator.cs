@@ -9,7 +9,7 @@ public sealed class PhotoDtoValidator : AbstractValidator<PhotoDto>
     {
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage("The id cannot be empty.");
-        
+
         RuleFor(x => x.Url)
             .NotEmpty().WithMessage("The url cannot be empty.");
     }

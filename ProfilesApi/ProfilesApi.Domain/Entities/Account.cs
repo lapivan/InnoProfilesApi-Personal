@@ -21,7 +21,7 @@ public sealed class Account : SoftDeletableEntity, IAuditable
     public Guid CreatedBy { get; set; }
     public Guid UpdatedBy { get; set; }
     protected Account() { }
-    public Account(string firstname, string lastname, DateTime birthday, string phoneNumber,  string email, string passwordHash, Roles role, Guid createdBy, Guid updatedBy)
+    public Account(string firstname, string lastname, DateTime birthday, string phoneNumber, string email, string passwordHash, Roles role, Guid createdBy, Guid updatedBy)
     {
         Firstname = firstname;
         Lastname = lastname;

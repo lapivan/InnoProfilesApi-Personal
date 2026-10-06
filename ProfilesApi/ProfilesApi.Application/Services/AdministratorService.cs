@@ -20,8 +20,8 @@ public sealed class AdministratorService : IAdministratorService
     private readonly IPublishEndpoint _publishEndpoint;
 
     public AdministratorService(
-        IMapper mapper, 
-        IUnitOfWork unitOfWork, 
+        IMapper mapper,
+        IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
         ILogger<AdministratorService> logger, IPublishEndpoint publishEndpoint)
     {
@@ -40,7 +40,7 @@ public sealed class AdministratorService : IAdministratorService
         {
             _logger.LogInformation("Creating new administrator account for Email: {Email}.", createAdministratorDto.Email);
             var emailExists = await _unitOfWork.Accounts.ExistsAsync(a => a.Email == createAdministratorDto.Email, ct);
-            var numberExists = await _unitOfWork.Accounts.ExistsAsync(a=> a.PhoneNumber == createAdministratorDto.PhoneNumber, ct);
+            var numberExists = await _unitOfWork.Accounts.ExistsAsync(a => a.PhoneNumber == createAdministratorDto.PhoneNumber, ct);
 
             if (emailExists)
             {
@@ -53,14 +53,14 @@ public sealed class AdministratorService : IAdministratorService
                 _logger.LogWarning("Administrator creation failed. Phone number {PhoneNumber} is already in use.", createAdministratorDto.PhoneNumber);
                 throw new ConflictException("Phone number is already in use by another account.");
             }
-            
+
             var officeExists = await _unitOfWork.Offices.ExistsAsync(o => o.Id == createAdministratorDto.OfficeId, ct);
             if (!officeExists)
             {
                 _logger.LogWarning("Administrator creation failed. OfficeId {OfficeId} was not found.", createAdministratorDto.OfficeId);
                 throw new NotFoundException($"Office with ID '{createAdministratorDto.OfficeId}' was not found.");
             }
-            
+
             var account = _mapper.Map<Account>(createAdministratorDto);
             if (createdById == Guid.Empty)
             {
@@ -74,10 +74,10 @@ public sealed class AdministratorService : IAdministratorService
 
             administrator.AccountId = account.Id;
             administrator.Account = account;
-        
+
             _unitOfWork.Accounts.Add(account);
             _unitOfWork.Administrators.Add(administrator);
-            
+
             await _publishEndpoint.Publish<IStaffCreatedEvent>(new
             {
                 AccountId = account.Id,
@@ -87,10 +87,10 @@ public sealed class AdministratorService : IAdministratorService
                 Lastname = createAdministratorDto.Lastname,
                 Role = InnoClinic.Shared.Events.Roles.Administrator
             }, ct);
-            
+
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Successfully created administrator with ID: {AdministratorId} for OfficeId: {OfficeId}.", administrator.Id, administrator.OfficeId);
             return _mapper.Map<AdministratorDto>(administrator);
         }
@@ -114,20 +114,20 @@ public sealed class AdministratorService : IAdministratorService
                 _logger.LogWarning("Administrator deleting failed. Administrator with ID '{AdministratorId}' was not found.", id);
                 throw new NotFoundException($"Administrator with ID '{id}' was not found.");
             }
-            
+
             var totalAdminsCount = await _unitOfWork.Administrators.ExistsAsync(a => a.Id != id, ct);
             if (!totalAdminsCount)
             {
                 _logger.LogWarning("Administrator deleting failed. Administrator with ID '{AdministratorId}' is the last in the system and cannot be deleted.", id);
                 throw new ConflictException("Cannot delete the last administrator in the system.");
             }
-            
+
             _unitOfWork.Administrators.Delete(administrator);
             _unitOfWork.Accounts.Delete(administrator.Account);
 
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Successfully deleted administrator with ID: {AdministratorId}", id);
         }
         catch
@@ -151,14 +151,14 @@ public sealed class AdministratorService : IAdministratorService
                 _logger.LogWarning("Administrator editing failed. Administrator with ID '{AdministratorId}' was not found.", editAdministratorProfileDto.Id);
                 throw new NotFoundException($"Administrator with ID '{editAdministratorProfileDto.Id}' was not found.");
             }
-            
+
             var officeExists = await _unitOfWork.Offices.ExistsAsync(o => o.Id == editAdministratorProfileDto.OfficeId, ct);
             if (!officeExists)
             {
                 _logger.LogWarning("Administrator editing failed. OfficeId {OfficeId} was not found.", editAdministratorProfileDto.OfficeId);
                 throw new NotFoundException($"Office with ID '{editAdministratorProfileDto.OfficeId}' was not found.");
             }
-            
+
             var phoneExists = await _unitOfWork.Accounts.ExistsAsync(
                 a => a.Id != administrator.AccountId && a.PhoneNumber == editAdministratorProfileDto.PhoneNumber, ct);
             if (phoneExists)
@@ -166,7 +166,7 @@ public sealed class AdministratorService : IAdministratorService
                 _logger.LogWarning("Administrator editing failed. Phone number {PhoneNumber} is already in use.", editAdministratorProfileDto.PhoneNumber);
                 throw new ConflictException("Phone number is already in use by another account.");
             }
-            
+
             var emailExists = await _unitOfWork.Accounts.ExistsAsync(
                 a => a.Id != administrator.AccountId && a.Email == editAdministratorProfileDto.Email, ct);
             if (emailExists)
@@ -174,14 +174,14 @@ public sealed class AdministratorService : IAdministratorService
                 _logger.LogWarning("Administrator editing failed. Email {Email} is already in use.", editAdministratorProfileDto.Email);
                 throw new ConflictException("Email is already in use by another account.");
             }
-            
+
             _mapper.Map(editAdministratorProfileDto, administrator);
-            
+
             administrator.Account.UpdatedBy = editedById;
-        
+
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Administrator with ID: {AdministratorId} successfully updated.", administrator.Id);
             return _mapper.Map<AdministratorDto>(administrator);
         }
@@ -196,13 +196,13 @@ public sealed class AdministratorService : IAdministratorService
     {
         _logger.LogInformation("Trying to get administrator with ID: {AdministratorId}", id);
         var administrator = await _unitOfWork.Administrators.GetWithDetailsAsync(id, ct);
-    
+
         if (administrator == null)
         {
             _logger.LogWarning("Administrator getting failed. Administrator with ID '{AdministratorId}' was not found.", id);
             throw new NotFoundException($"Administrator with ID '{id}' was not found.");
         }
-    
+
         _logger.LogInformation("Administrator with ID: {AdministratorId} successfully retrieved.", id);
         return _mapper.Map<AdministratorDto>(administrator);
     }
@@ -213,18 +213,18 @@ public sealed class AdministratorService : IAdministratorService
     {
         var searchTerm = filteredAdministratorListDto?.SearchTerm?.Trim().ToLower();
         var officeId = filteredAdministratorListDto?.OfficeId;
-    
+
         _logger.LogInformation("Fetching administrators with SearchTerm: {SearchTerm}, OfficeId: {OfficeId}", searchTerm, officeId);
-        
+
         var administrators = (await _unitOfWork.Administrators.GetAllAsync(
-            filter: a => 
+            filter: a =>
                 (!officeId.HasValue || a.OfficeId == officeId.Value) &&
                 (string.IsNullOrWhiteSpace(searchTerm) ||
                  a.Account.Firstname.ToLower().Contains(searchTerm) ||
                  a.Account.Lastname.ToLower().Contains(searchTerm) ||
                  (a.Account.Firstname + " " + a.Account.Lastname).ToLower().Contains(searchTerm) ||
                  (a.Account.Lastname + " " + a.Account.Firstname).ToLower().Contains(searchTerm)),
-    
+
             cancellationToken: ct,
 
             includesProperties:
@@ -233,7 +233,7 @@ public sealed class AdministratorService : IAdministratorService
                 a => a.Office
             ]
         )).ToList();
-        
+
         _logger.LogInformation("Retrieved {Count} administrator(s) matching filter", administrators.Count);
         return _mapper.Map<IEnumerable<AdministratorDto>>(administrators);
     }
@@ -248,13 +248,13 @@ public sealed class AdministratorService : IAdministratorService
         var pageSize = searchPagedAdministratorDto?.PageSize ?? 10;
 
         _logger.LogInformation(
-            "Fetching paged administrators. PageNumber: {PageNumber}, PageSize: {PageSize}, SearchTerm: {SearchTerm}, OfficeId: {OfficeId}", 
+            "Fetching paged administrators. PageNumber: {PageNumber}, PageSize: {PageSize}, SearchTerm: {SearchTerm}, OfficeId: {OfficeId}",
             pageNumber, pageSize, searchTerm, officeId);
-    
+
         var (administrators, totalCount) = await _unitOfWork.Administrators.GetPagedAsync(
             pageNumber: pageNumber,
             pageSize: pageSize,
-            filter: a => 
+            filter: a =>
                 (!officeId.HasValue || a.OfficeId == officeId.Value) &&
                 (string.IsNullOrWhiteSpace(searchTerm) ||
                  a.Account.Firstname.ToLower().Contains(searchTerm) ||
@@ -268,17 +268,17 @@ public sealed class AdministratorService : IAdministratorService
                 a => a.Office
             ]
         );
-    
+
         _logger.LogInformation(
-            "Retrieved page {PageNumber} of administrators ({ItemCount} item(s) on this page, {TotalCount} total matching)", 
+            "Retrieved page {PageNumber} of administrators ({ItemCount} item(s) on this page, {TotalCount} total matching)",
             pageNumber, administrators.Count(), totalCount);
 
         var dtos = _mapper.Map<IEnumerable<AdministratorDto>>(administrators);
-    
+
         return new PagedResult<AdministratorDto>(
-            items: dtos, 
-            totalCount: totalCount, 
-            pageNumber: pageNumber, 
+            items: dtos,
+            totalCount: totalCount,
+            pageNumber: pageNumber,
             pageSize: pageSize);
     }
 
@@ -286,13 +286,13 @@ public sealed class AdministratorService : IAdministratorService
     {
         _logger.LogInformation("Trying to get administrator with account ID: {AccountId}", accountId);
         var administrator = await _unitOfWork.Administrators.GetByAccountIdAsync(accountId, ct);
-    
+
         if (administrator == null)
         {
             _logger.LogWarning("Administrator getting failed. Administrator with account ID '{AccountId}' was not found.", accountId);
             throw new NotFoundException($"Administrator with account ID '{accountId}' was not found.");
         }
-    
+
         _logger.LogInformation("Administrator with account ID: {AccountId} successfully retrieved.", accountId);
         return _mapper.Map<AdministratorDto>(administrator);
     }

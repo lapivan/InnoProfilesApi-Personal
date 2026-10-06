@@ -7,7 +7,7 @@ namespace ProfilesApi.Infrastructure.Data;
 
 public sealed class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) 
+    public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
 
     public DbSet<Account> Accounts { get; set; }
@@ -23,7 +23,7 @@ public sealed class AppDbContext : DbContext
         UpdateEntitiesBeforeSave();
         return base.SaveChanges();
     }
-    
+
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         UpdateEntitiesBeforeSave();
@@ -37,7 +37,7 @@ public sealed class AppDbContext : DbContext
     }
 
     public override async Task<int> SaveChangesAsync(
-        bool acceptAllChangesOnSuccess, 
+        bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
         UpdateEntitiesBeforeSave();
@@ -49,7 +49,7 @@ public sealed class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
-    
+
     private void UpdateEntitiesBeforeSave()
     {
         foreach (var entry in ChangeTracker.Entries<SoftDeletableEntity>())
@@ -63,7 +63,7 @@ public sealed class AppDbContext : DbContext
 
         foreach (var entry in ChangeTracker.Entries<IAuditable>())
         {
-            if (entry.State == EntityState.Modified ||  entry.State == EntityState.Added)
+            if (entry.State == EntityState.Modified || entry.State == EntityState.Added)
             {
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
             }

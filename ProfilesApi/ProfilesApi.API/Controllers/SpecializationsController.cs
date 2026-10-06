@@ -15,12 +15,12 @@ namespace ProfilesApi.API.Controllers;
 public sealed class SpecializationsController : ControllerBase
 {
     private readonly ISpecializationService _specializationService;
-    
+
     public SpecializationsController(ISpecializationService specializationService)
     {
         _specializationService = specializationService;
     }
-    
+
     [HttpPost]
     [Authorize(Policy = AuthPolicies.RequireAdmin)]
     [SwaggerOperation(
@@ -54,7 +54,7 @@ public sealed class SpecializationsController : ControllerBase
         await _specializationService.DeleteSpecializationAsync(id, ct);
         return NoContent();
     }
-    
+
     [HttpPut]
     [Authorize(Policy = AuthPolicies.RequireAdmin)]
     [SwaggerOperation(
@@ -104,7 +104,7 @@ public sealed class SpecializationsController : ControllerBase
         var specializations = await _specializationService.GetSpecializationsAsync(filteredSpecializationListDto, ct);
         return Ok(specializations);
     }
-    
+
     [HttpPost("search/paged")]
     [AllowAnonymous]
     [SwaggerOperation(

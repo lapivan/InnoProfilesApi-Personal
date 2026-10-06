@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProfilesApi.API.Constants;
 using ProfilesApi.Application.Dto.Doctors;
 using ProfilesApi.Application.Dto.Shared;
 using ProfilesApi.Application.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Security.Claims;
 
 namespace ProfilesApi.API.Controllers;
 
@@ -21,7 +21,7 @@ public sealed class DoctorsController : ControllerBase
     {
         _doctorService = doctorService;
     }
-    
+
     [HttpPost]
     [Authorize(Policy = AuthPolicies.RequireAdmin)]
     [SwaggerOperation(
@@ -56,7 +56,7 @@ public sealed class DoctorsController : ControllerBase
         await _doctorService.DeleteDoctorAsync(id, ct);
         return NoContent();
     }
-    
+
     [HttpPut]
     [Authorize(Policy = AuthPolicies.RequireStaff)]
     [SwaggerOperation(
@@ -91,7 +91,7 @@ public sealed class DoctorsController : ControllerBase
         var doctor = await _doctorService.GetDoctorAsync(doctorId, ct);
         return Ok(doctor);
     }
-    
+
     [HttpGet("accounts/{accountId:guid}")]
     [AllowAnonymous]
     [SwaggerOperation(
@@ -124,7 +124,7 @@ public sealed class DoctorsController : ControllerBase
         var doctors = await _doctorService.GetDoctorsAsync(filteredDoctorListDto, ct);
         return Ok(doctors);
     }
-    
+
     [HttpPost("search/paged")]
     [AllowAnonymous]
     [SwaggerOperation(

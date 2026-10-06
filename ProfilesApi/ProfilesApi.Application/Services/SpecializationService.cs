@@ -14,8 +14,8 @@ public sealed class SpecializationService : ISpecializationService
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<SpecializationService> _logger;
-    
-    public SpecializationService(IMapper mapper, 
+
+    public SpecializationService(IMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<SpecializationService> logger)
     {
@@ -43,10 +43,10 @@ public sealed class SpecializationService : ISpecializationService
             }
 
             _unitOfWork.Specializations.Add(specialization);
-            
+
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Successfully created specialization with ID: {SpecializationId}.", specialization.Id);
             return _mapper.Map<SpecializationDto>(specialization);
         }
@@ -58,7 +58,7 @@ public sealed class SpecializationService : ISpecializationService
     }
 
     public async Task<IEnumerable<SpecializationDto>> GetSpecializationsAsync(
-        SearchQueryDto? searchQueryDto = null, 
+        SearchQueryDto? searchQueryDto = null,
         CancellationToken ct = default)
     {
         var searchTerm = searchQueryDto?.SearchTerm?.Trim().ToLower();
@@ -84,19 +84,19 @@ public sealed class SpecializationService : ISpecializationService
     {
         _logger.LogInformation("Trying to get specialization with ID: {SpecializationId}", id);
         var specialization = await _unitOfWork.Specializations.GetByIdAsync(id, ct);
-        
+
         if (specialization == null)
         {
             _logger.LogWarning("Failed to retrieve specialization. Specialization with ID '{SpecializationId}' was not found.", id);
             throw new NotFoundException($"Specialization with ID '{id}' was not found.");
         }
-        
+
         _logger.LogInformation("Specialization with ID: {SpecializationId} successfully retrieved.", id);
         return _mapper.Map<SpecializationDto>(specialization);
     }
 
     public async Task<PagedResult<SpecializationDto>> GetSpecializationsPagedAsync(
-        SearchPagedSpecializationDto searchPagedSpecializationDto, 
+        SearchPagedSpecializationDto searchPagedSpecializationDto,
         CancellationToken ct = default)
     {
         var searchTerm = searchPagedSpecializationDto?.SearchTerm?.Trim().ToLower();
@@ -104,27 +104,27 @@ public sealed class SpecializationService : ISpecializationService
         var pageSize = searchPagedSpecializationDto?.PageSize ?? 10;
 
         _logger.LogInformation(
-            "Fetching paged specializations. PageNumber: {PageNumber}, PageSize: {PageSize}, SearchTerm: {SearchTerm}", 
+            "Fetching paged specializations. PageNumber: {PageNumber}, PageSize: {PageSize}, SearchTerm: {SearchTerm}",
             pageNumber, pageSize, searchTerm);
 
         var (specializations, totalCount) = await _unitOfWork.Specializations.GetPagedAsync(
             pageNumber: pageNumber,
             pageSize: pageSize,
-            filter: s => string.IsNullOrWhiteSpace(searchTerm) || 
+            filter: s => string.IsNullOrWhiteSpace(searchTerm) ||
                          s.Name.ToLower().Contains(searchTerm),
             cancellationToken: ct
         );
 
         _logger.LogInformation(
-            "Retrieved page {PageNumber} of specializations ({ItemCount} item(s) on this page, {TotalCount} total matching)", 
+            "Retrieved page {PageNumber} of specializations ({ItemCount} item(s) on this page, {TotalCount} total matching)",
             pageNumber, specializations.Count(), totalCount);
 
         var dtos = _mapper.Map<IEnumerable<SpecializationDto>>(specializations);
 
         return new PagedResult<SpecializationDto>(
-            items: dtos, 
-            totalCount: totalCount, 
-            pageNumber: pageNumber, 
+            items: dtos,
+            totalCount: totalCount,
+            pageNumber: pageNumber,
             pageSize: pageSize);
     }
 
@@ -152,10 +152,10 @@ public sealed class SpecializationService : ISpecializationService
             }
 
             _unitOfWork.Specializations.Delete(specialization);
-            
+
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Successfully deleted specialization with ID: {SpecializationId}", id);
         }
         catch
@@ -182,10 +182,10 @@ public sealed class SpecializationService : ISpecializationService
             }
 
             _mapper.Map(editSpecializationInformationDto, existingSpecialization);
-            
+
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Specialization with ID: {SpecializationId} successfully updated.", editSpecializationInformationDto.Id);
         }
         catch

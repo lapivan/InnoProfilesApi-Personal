@@ -16,10 +16,10 @@ public sealed class RegisterPatientDtoValidator : AbstractValidator<RegisterPati
         RuleFor(x => x.PhoneNumber).PhoneNumberRules();
         RuleFor(x => x.Email).EmailRules();
         RuleFor(x => x.Password).PasswordRules();
-        
+
         RuleFor(x => x.PhotoId)
             .NotEmpty().WithMessage("Invalid photo ID format.")
             .When(x => x.PhotoId.HasValue);
     }
-    
+
 }

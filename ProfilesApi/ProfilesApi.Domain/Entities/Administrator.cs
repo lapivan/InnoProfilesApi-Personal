@@ -24,7 +24,7 @@ public sealed class Administrator : SoftDeletableEntity
             return result;
         }
     }
-    public Administrator(Guid accountId,  Guid officeId, DateTime careerStartDate, int gapInMonths)
+    public Administrator(Guid accountId, Guid officeId, DateTime careerStartDate, int gapInMonths)
     {
         AccountId = accountId;
         OfficeId = officeId;

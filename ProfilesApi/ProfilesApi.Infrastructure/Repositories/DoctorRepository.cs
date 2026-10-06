@@ -10,7 +10,7 @@ public sealed class DoctorRepository : GenericRepository<Doctor>, IDoctorReposit
     public DoctorRepository(AppDbContext context) : base(context)
     {
     }
-    
+
     public async Task<Doctor?> GetByAccountIdAsync(Guid accountId, CancellationToken cancellationToken = default)
     {
         return await Entities
@@ -22,7 +22,7 @@ public sealed class DoctorRepository : GenericRepository<Doctor>, IDoctorReposit
     {
         return await Entities
             .Include(d => d.Account)
-            .Where(d => d.Account.Firstname.ToLower().Contains(name) || 
+            .Where(d => d.Account.Firstname.ToLower().Contains(name) ||
                         d.Account.Lastname.ToLower().Contains(name))
             .ToListAsync(cancellationToken);
     }

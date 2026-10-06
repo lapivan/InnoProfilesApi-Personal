@@ -13,7 +13,7 @@ namespace ProfilesApi.API.Controllers;
 public sealed class PhotosController : ControllerBase
 {
     private readonly IPhotoService _photoService;
-    
+
     public PhotosController(IPhotoService photoService)
     {
         _photoService = photoService;
@@ -52,7 +52,7 @@ public sealed class PhotosController : ControllerBase
         var photo = await _photoService.GetPhotoAsync(photoId, ct);
         return File(photo.Stream, photo.ContentType);
     }
-    
+
     [HttpPost]
     [Consumes("multipart/form-data")]
     [Authorize(Policy = AuthPolicies.RequireAllRoles)]
@@ -65,13 +65,13 @@ public sealed class PhotosController : ControllerBase
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid file format or missing photo file")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal service error")]
     public async Task<IActionResult> UploadPhoto(IFormFile file, CancellationToken ct)
-    { 
+    {
         using var stream = file.OpenReadStream();
 
         var result = await _photoService.UploadPhotoAsync(
-            stream, 
-            file.FileName, 
-            file.ContentType, 
+            stream,
+            file.FileName,
+            file.ContentType,
             ct);
 
         return Created($"/photos/{result.Id}", result);

@@ -14,9 +14,9 @@ public sealed class DoctorDtoValidator : AbstractValidator<DoctorDto>
         RuleFor(x => x.PhoneNumber).PhoneNumberRules();
         RuleFor(x => x.Email).EmailRules();
         RuleFor(x => x.AccountId).NotEmpty().WithMessage("Account ID is required.");
-        
+
         RuleFor(x => x.Id).NotEmpty();
-        
+
         RuleFor(x => x.PhotoId)
             .NotEmpty().WithMessage("Invalid photo ID format.")
             .When(x => x.PhotoId.HasValue);
@@ -26,7 +26,7 @@ public sealed class DoctorDtoValidator : AbstractValidator<DoctorDto>
 
         RuleFor(x => x.SpecializationId)
             .NotEmpty().WithMessage("Specialization is required.");
-        
+
         RuleFor(x => x.Degree)
             .NotEmpty().WithMessage("Degree is required.")
             .MaximumLength(50).WithMessage("Degree cannot be longer than 50 characters.");

@@ -15,9 +15,9 @@ public sealed class PatientService : IPatientService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ILogger<PatientService> _logger;
-    
-    public PatientService(IMapper mapper, 
-        IUnitOfWork unitOfWork, 
+
+    public PatientService(IMapper mapper,
+        IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
         ILogger<PatientService> logger)
     {
@@ -28,17 +28,17 @@ public sealed class PatientService : IPatientService
     }
 
     public async Task<PatientDto> CreatePatientAsync(
-        RegisterPatientDto registerPatientDto, 
-        IRegistrationPublisher publisher, 
-        Guid? customAccountId = null, 
-        Guid? createdById = null, 
+        RegisterPatientDto registerPatientDto,
+        IRegistrationPublisher publisher,
+        Guid? customAccountId = null,
+        Guid? createdById = null,
         CancellationToken ct = default)
     {
         await _unitOfWork.BeginTransactionAsync(IsolationLevel.Serializable, ct);
         try
         {
             _logger.LogInformation("Creating new patient account for Email: {Email}.", registerPatientDto.Email);
-            
+
             if (customAccountId.HasValue)
             {
                 var accountExists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id == customAccountId.Value, ct);
@@ -80,9 +80,9 @@ public sealed class PatientService : IPatientService
 
             _unitOfWork.Accounts.Add(account);
             _unitOfWork.Patients.Add(patient);
-            
+
             await publisher.PublishCreatedAsync(account, registerPatientDto.Password, InnoClinic.Shared.Events.Roles.Patient, ct);
-            
+
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
 
@@ -100,13 +100,13 @@ public sealed class PatientService : IPatientService
     {
         _logger.LogInformation("Trying to get patient with ID: {PatientId}", id);
         var patient = await _unitOfWork.Patients.GetWithDetailsAsync(id, ct);
-        
+
         if (patient == null)
         {
             _logger.LogWarning("Failed to retrieve patient. Patient with ID '{PatientId}' was not found.", id);
             throw new NotFoundException($"Patient with ID '{id}' was not found.");
         }
-        
+
         _logger.LogInformation("Patient with ID: {PatientId} successfully retrieved.", id);
         return _mapper.Map<PatientDto>(patient);
     }
@@ -118,9 +118,9 @@ public sealed class PatientService : IPatientService
         var email = filteredPatientListDto?.Email?.Trim();
 
         _logger.LogInformation("Fetching patients with SearchTerm: {SearchTerm}, PhoneNumber: {PhoneNumber}, Email: {Email}", searchTerm, phoneNumber, email);
-    
+
         var patients = (await _unitOfWork.Patients.GetAllAsync(
-            filter: a => 
+            filter: a =>
                 (string.IsNullOrWhiteSpace(phoneNumber) || a.Account.PhoneNumber.Contains(phoneNumber)) &&
                 (string.IsNullOrWhiteSpace(email) || a.Account.Email.Contains(email)) &&
                 (string.IsNullOrWhiteSpace(searchTerm) ||
@@ -128,7 +128,7 @@ public sealed class PatientService : IPatientService
                  a.Account.Lastname.ToLower().Contains(searchTerm) ||
                  (a.Account.Firstname + " " + a.Account.Lastname).ToLower().Contains(searchTerm) ||
                  (a.Account.Lastname + " " + a.Account.Firstname).ToLower().Contains(searchTerm)),
-    
+
             cancellationToken: ct,
 
             includesProperties:
@@ -136,13 +136,13 @@ public sealed class PatientService : IPatientService
                 a => a.Account,
             ]
         )).ToList();
-    
+
         _logger.LogInformation("Retrieved {Count} patient(s) matching filter", patients.Count);
         return _mapper.Map<IEnumerable<PatientDto>>(patients);
     }
 
     public async Task<PagedResult<PatientDto>> GetPatientsPagedAsync(
-        SearchPagedPatientDto searchPagedPatientDto, 
+        SearchPagedPatientDto searchPagedPatientDto,
         CancellationToken ct = default)
     {
         var searchTerm = searchPagedPatientDto?.SearchTerm?.Trim().ToLower();
@@ -150,7 +150,7 @@ public sealed class PatientService : IPatientService
         var pageSize = searchPagedPatientDto?.PageSize ?? 10;
 
         _logger.LogInformation(
-            "Fetching paged patients. PageNumber: {PageNumber}, PageSize: {PageSize}, SearchTerm: {SearchTerm}", 
+            "Fetching paged patients. PageNumber: {PageNumber}, PageSize: {PageSize}, SearchTerm: {SearchTerm}",
             pageNumber, pageSize, searchTerm);
 
         var (patients, totalCount) = await _unitOfWork.Patients.GetPagedAsync(
@@ -169,15 +169,15 @@ public sealed class PatientService : IPatientService
         );
 
         _logger.LogInformation(
-            "Retrieved page {PageNumber} of patients ({ItemCount} item(s) on this page, {TotalCount} total matching)", 
+            "Retrieved page {PageNumber} of patients ({ItemCount} item(s) on this page, {TotalCount} total matching)",
             pageNumber, patients.Count(), totalCount);
 
         var dtos = _mapper.Map<IEnumerable<PatientDto>>(patients);
 
         return new PagedResult<PatientDto>(
-            items: dtos, 
-            totalCount: totalCount, 
-            pageNumber: pageNumber, 
+            items: dtos,
+            totalCount: totalCount,
+            pageNumber: pageNumber,
             pageSize: pageSize);
     }
 
@@ -217,7 +217,7 @@ public sealed class PatientService : IPatientService
 
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Patient with ID: {PatientId} successfully updated.", patient.Id);
             return _mapper.Map<PatientDto>(patient);
         }
@@ -247,7 +247,7 @@ public sealed class PatientService : IPatientService
 
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
-            
+
             _logger.LogInformation("Successfully deleted patient with ID: {PatientId}", id);
         }
         catch
@@ -261,13 +261,13 @@ public sealed class PatientService : IPatientService
     {
         _logger.LogInformation("Trying to get patient with account ID: {AccountId}", accountId);
         var patient = await _unitOfWork.Patients.GetByAccountIdAsync(accountId, ct);
-        
+
         if (patient == null)
         {
             _logger.LogWarning("Failed to retrieve patient. Patient with account ID '{AccountId}' was not found.", accountId);
             throw new NotFoundException($"Patient with account ID '{accountId}' was not found.");
         }
-        
+
         _logger.LogInformation("Patient with account ID: {AccountId} successfully retrieved.", accountId);
         return _mapper.Map<PatientDto>(patient);
     }

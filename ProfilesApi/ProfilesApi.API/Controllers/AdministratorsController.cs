@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProfilesApi.API.Constants;
 using ProfilesApi.Application.Dto.Administrators;
 using ProfilesApi.Application.Dto.Shared;
 using ProfilesApi.Application.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Security.Claims;
 
 namespace ProfilesApi.API.Controllers;
 
@@ -16,7 +16,7 @@ namespace ProfilesApi.API.Controllers;
 public sealed class AdministratorsController : ControllerBase
 {
     private readonly IAdministratorService _administratorService;
-    
+
     public AdministratorsController(IAdministratorService administratorService)
     {
         _administratorService = administratorService;
@@ -55,7 +55,7 @@ public sealed class AdministratorsController : ControllerBase
         await _administratorService.DeleteAdministratorAsync(id, ct);
         return NoContent();
     }
-    
+
     [HttpPut]
     [SwaggerOperation(
         Summary = "Edits an administrator profile",
@@ -88,7 +88,7 @@ public sealed class AdministratorsController : ControllerBase
         var administrator = await _administratorService.GetAdministratorAsync(administratorId, ct);
         return Ok(administrator);
     }
-    
+
     [HttpGet("accounts/{accountId:guid}")]
     [SwaggerOperation(
         Summary = "Gets an administrator by account ID",
@@ -119,7 +119,7 @@ public sealed class AdministratorsController : ControllerBase
         var administrators = await _administratorService.GetAdministratorsAsync(filteredAdministratorListDto, ct);
         return Ok(administrators);
     }
-    
+
     [HttpPost("search/paged")]
     [SwaggerOperation(
         Summary = "Gets a paged list of administrators",

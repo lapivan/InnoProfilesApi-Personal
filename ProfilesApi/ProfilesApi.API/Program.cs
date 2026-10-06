@@ -1,7 +1,5 @@
 using System.Security.Claims;
 using System.Text.Json;
-using ProfilesApi.Application;
-using ProfilesApi.Infrastructure;
 using FluentValidation.AspNetCore;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,7 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using ProfilesApi.API.Constants;
 using ProfilesApi.API.Middleware;
+using ProfilesApi.Application;
 using ProfilesApi.Application.Consumers;
+using ProfilesApi.Infrastructure;
 using Serilog;
 using Serilog.Events;
 
@@ -28,7 +28,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
     .MinimumLevel.Override("Microsoft.AspNetCore.HttpsPolicy", LogEventLevel.Error)
     .WriteTo.Console()
-    .WriteTo.MongoDB(builder.Configuration.GetConnectionString("MongoLogging") 
+    .WriteTo.MongoDB(builder.Configuration.GetConnectionString("MongoLogging")
                      ?? throw new InvalidOperationException("Mongodb connection string is missing in configuration"))
     .CreateLogger();
 builder.Host.UseSerilog();
@@ -46,39 +46,40 @@ try
     builder.Services.AddSwaggerGen();
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
-    
+
     builder.Services.AddMassTransit(x =>
     {
         x.AddConsumer<PatientRegisteredConsumer>();
+        x.AddConsumer<ProfileRegisteredConsumer>();
         x.UsingRabbitMq((context, cfg) =>
         {
             var rabbitSettings = builder.Configuration.GetSection("RabbitMQ");
 
             cfg.Host(
-                rabbitSettings["Host"] ?? "localhost", 
-                rabbitSettings["VirtualHost"] ?? "/", 
+                rabbitSettings["Host"] ?? "localhost",
+                rabbitSettings["VirtualHost"] ?? "/",
                 h =>
                 {
                     h.Username(rabbitSettings["Username"] ?? "guest");
                     h.Password(rabbitSettings["Password"] ?? "guest");
                 }
             );
-            
+
             cfg.ReceiveEndpoint("patient-registered-queue", e =>
             {
                 e.ConfigureConsumer<PatientRegisteredConsumer>(context);
             });
-            
+
             cfg.ConfigureEndpoints(context);
         });
     });
-    
+
     builder.Services.AddSwaggerGen(options =>
     {
-        options.SwaggerDoc("v1", new OpenApiInfo 
-        { 
-            Title = builder.Environment.ApplicationName, 
-            Version = "v1" 
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = builder.Environment.ApplicationName,
+            Version = "v1"
         });
 
         var securityScheme = new OpenApiSecurityScheme
@@ -86,7 +87,7 @@ try
             Name = "Authorization",
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.Http,
-            Scheme = "bearer",         
+            Scheme = "bearer",
             BearerFormat = "JWT",
             Description = "Enter JWT token (without Bearer prefix)"
         };
@@ -97,8 +98,8 @@ try
         {
             var requirement = new OpenApiSecurityRequirement();
             var reference = new OpenApiSecuritySchemeReference("Bearer", doc);
-            requirement[reference] = new List<string>(); 
-        
+            requirement[reference] = new List<string>();
+
             return requirement;
         });
     });
@@ -112,22 +113,22 @@ try
     {
         var keycloakBaseUrl = builder.Configuration["Keycloak:BaseUrl"];
         var keycloakRealm = builder.Configuration["Keycloak:Realm"];
-    
+
         if (string.IsNullOrWhiteSpace(keycloakBaseUrl) || string.IsNullOrWhiteSpace(keycloakRealm))
             throw new InvalidOperationException("Keycloak configuration is missing.");
-    
+
         var authority = $"{keycloakBaseUrl.TrimEnd('/')}/realms/{keycloakRealm}";
-    
+
         options.Authority = authority;
         options.RequireHttpsMetadata = false;
-    
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidIssuer = authority,
             ValidateAudience = false
         };
-   
+
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = context =>
@@ -155,19 +156,19 @@ try
             }
         };
     });
-    
+
     builder.Services.AddAuthorization(options =>
     {
-        options.AddPolicy(AuthPolicies.RequireAdmin, policy => 
+        options.AddPolicy(AuthPolicies.RequireAdmin, policy =>
             policy.RequireRole("Administrator"));
-        
-        options.AddPolicy(AuthPolicies.RequireStaff, policy => 
+
+        options.AddPolicy(AuthPolicies.RequireStaff, policy =>
             policy.RequireRole("Administrator", "Doctor"));
-        
-        options.AddPolicy(AuthPolicies.RequirePatientOrAdmin, policy => 
+
+        options.AddPolicy(AuthPolicies.RequirePatientOrAdmin, policy =>
             policy.RequireRole("Administrator", "Patient"));
-        
-        options.AddPolicy(AuthPolicies.RequireAllRoles, policy => 
+
+        options.AddPolicy(AuthPolicies.RequireAllRoles, policy =>
             policy.RequireRole("Administrator", "Doctor", "Patient"));
     });
 
@@ -195,7 +196,7 @@ try
         try
         {
             var context = services.GetRequiredService<ProfilesApi.Infrastructure.Data.AppDbContext>();
-            context.Database.Migrate(); 
+            context.Database.Migrate();
             Log.Information("Database migrated successfully.");
         }
         catch (Exception ex)
@@ -204,10 +205,10 @@ try
             throw;
         }
     }
-    
+
     app.Run();
 }
-catch(Exception ex)
+catch (Exception ex)
 {
     Log.Fatal(ex, "Host terminated unexpectedly");
 }

@@ -1,7 +1,7 @@
-﻿using MassTransit;
-using Microsoft.Extensions.Logging;
+﻿using InnoClinic.Shared.Events;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
-using InnoClinic.Shared.Events;
+using Microsoft.Extensions.Logging;
 using ProfilesApi.Application.Dto.Patients;
 using ProfilesApi.Application.Interfaces;
 
@@ -39,9 +39,9 @@ public sealed class PatientRegisteredConsumer : IConsumer<IPatientRegisteredEven
         };
 
         await _patientService.CreatePatientAsync(
-            registerDto, 
-            _publisher, 
-            customAccountId: message.AccountId, 
+            registerDto,
+            _publisher,
+            customAccountId: message.AccountId,
             ct: context.CancellationToken);
     }
 }

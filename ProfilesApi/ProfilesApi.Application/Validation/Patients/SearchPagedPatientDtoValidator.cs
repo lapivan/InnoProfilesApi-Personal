@@ -9,12 +9,12 @@ public sealed class SearchPagedPatientDtoValidator : AbstractValidator<SearchPag
     public SearchPagedPatientDtoValidator()
     {
         RuleFor(x => x.SearchTerm).SearchTermRules();
-        
+
         RuleFor(x => x.PhoneNumber)
             .NotEmpty()
             .Matches(ValidationConstants.PhoneNumberPattern)
             .When(x => !string.IsNullOrEmpty(x.PhoneNumber));
-        
+
         RuleFor(x => x.Email)
             .NotEmpty()
             .When(x => !string.IsNullOrEmpty(x.Email));

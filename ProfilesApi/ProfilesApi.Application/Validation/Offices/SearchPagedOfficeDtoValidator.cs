@@ -9,7 +9,7 @@ public sealed class SearchPagedOfficeDtoValidator : AbstractValidator<SearchPage
     public SearchPagedOfficeDtoValidator()
     {
         RuleFor(x => x.SearchTerm).SearchTermRules();
-        
+
         RuleFor(x => x.PageNumber)
             .GreaterThanOrEqualTo(1)
             .WithMessage("PageNumber must be greater than or equal to 1.");
