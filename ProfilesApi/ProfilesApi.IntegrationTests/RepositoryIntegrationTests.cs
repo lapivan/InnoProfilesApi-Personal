@@ -34,7 +34,7 @@ public class RepositoryIntegrationTests
     {
         var office = DatabaseFixture.CreateEntity<Office>();
         office.Id = Guid.NewGuid();
-        office.Address = $"Wall Street {Guid.NewGuid().ToString().Substring(0, 5)}";
+        // office.Address = $"Wall Street {Guid.NewGuid().ToString().Substring(0, 5)}";
         office.PhoneNumber = $"+12345{Guid.NewGuid().ToString().Substring(0, 5)}";
         return office;
     }
