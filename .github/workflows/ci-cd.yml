@@ -2,7 +2,7 @@ name: ProfilesApi CI/CD
 
 on:
   push:
-    branches: [ "main", "feature/setup-ci-cd" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
