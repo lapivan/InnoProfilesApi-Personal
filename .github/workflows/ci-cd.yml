@@ -20,6 +20,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Add dotnet-format problem matcher
+        uses: xt0rted/dotnet-format-problem-matcher@v2
+        
       - name: Verify code formatting
         run: dotnet format ProfilesApi/ProfilesApi.sln --verify-no-changes
 
