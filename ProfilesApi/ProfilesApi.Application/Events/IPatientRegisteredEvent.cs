@@ -8,5 +8,6 @@ public interface IPatientRegisteredEvent
     string Email { get; }
     string PhoneNumber { get; }
     string Password { get; }
-    DateTime Birthday { get; }
+    // Some comment
+    DateTime    Birthday { get; }
 }
