@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ["ProfilesApi.API/ProfilesApi.API.csproj", "ProfilesApi.API/"]
-COPY ["ProfilesApi.Application/ProfilesApi.Application.csproj", "ProfilesApi.Application/"]
+COPY ["FakeFolder/ProfilesApi.Application.csproj", "ProfilesApi.Application/"]
 COPY ["ProfilesApi.Domain/ProfilesApi.Domain.csproj", "ProfilesApi.Domain/"]
 COPY ["ProfilesApi.Infrastructure/ProfilesApi.Infrastructure.csproj", "ProfilesApi.Infrastructure/"]
 
