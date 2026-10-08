@@ -40,7 +40,7 @@ public sealed class OfficeService : IOfficeService
                 throw new ConflictException("Office with this address or phone number already exists.");
             }
 
-            _unitOfWork.Offices.Add(office);
+            // _unitOfWork.Offices.Add(office);
             await _unitOfWork.CompleteAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
 
