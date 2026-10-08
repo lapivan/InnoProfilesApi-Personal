@@ -190,7 +190,6 @@ public sealed class DoctorService : IDoctorService
             await _unitOfWork.CommitTransactionAsync(ct);
 
             _logger.LogInformation("Doctor with ID: {DoctorId} successfully updated.", doctor.Id);
-            return _mapper.Map<DoctorDto>(doctor);
         }
         catch
         {
