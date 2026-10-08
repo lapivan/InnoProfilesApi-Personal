@@ -8,7 +8,7 @@ namespace ProfilesApi.IntegrationTests;
 public class DatabaseFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()
-        .WithImage("postgres:15-alpine")
+        .WithImage("postgres:99-alpine")
         .WithDatabase("profiles_db_test")
         .WithUsername("postgres")
         .WithPassword("postgres")
